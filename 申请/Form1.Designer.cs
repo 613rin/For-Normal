@@ -67,7 +67,6 @@ namespace 申请
             this.label1.Size = new System.Drawing.Size(265, 60);
             this.label1.TabIndex = 1;
             this.label1.Text = "申请访问";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // button1
             // 
@@ -125,7 +124,6 @@ namespace 申请
             this.label4.Size = new System.Drawing.Size(109, 20);
             this.label4.TabIndex = 7;
             this.label4.Text = "权重三密码";
-            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // textBox4
             // 
@@ -153,7 +151,6 @@ namespace 申请
             this.label6.Size = new System.Drawing.Size(69, 20);
             this.label6.TabIndex = 10;
             this.label6.Text = "验证码";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
             // 
             // textBox5
             // 
@@ -225,6 +222,7 @@ namespace 申请
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Text = "密码申请界面  版本V0.0";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -13,12 +13,15 @@ namespace 申请
 {
     public partial class Form1 : Form
     {
+        //刘洋手机号
+        private string PhoneNumber = "166666666";
         private int YanZhengMa;
         private Timer timer = new Timer();
         //为验证码生成时间做定义
         private Timer YanZhengMaTime = new Timer();
         //定义按钮间隔时间
         private Timer buttonTimer = new Timer();
+        private SmsBaseClass fSmsBaseClass;
         private DateTime lastClickTime;
 
         public const string AllPasswords = "1111111";
@@ -41,6 +44,8 @@ namespace 申请
             TimeSpan timeRemaining = nextHour - now;
             textBox4.Text = $"{timeRemaining.Minutes}min {timeRemaining.Seconds}s";
         }
+
+        #region  4种权重密码的算法
         /// <summary>
         /// 生成权重一的密码，每年更新一次
         /// </summary>
@@ -64,7 +69,18 @@ namespace 申请
         }
 
         /// <summary>
-        /// 生成权重三的密码，每小时更新一次密码
+        /// 权重三的密码，每天更新一次
+        /// </summary>
+        /// <param name="machineCode"></param>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static string GenerateDaylyKey(string machineCode, DateTime dateTime)
+        {
+            return dateTime.ToString("yyyyMMdd") + machineCode;
+        }
+
+        /// <summary>
+        /// 生成权重四的密码，每小时更新一次密码
         /// </summary>
         /// <param name="machineCode"></param>
         /// <param name="dateTime"></param>
@@ -74,6 +90,8 @@ namespace 申请
             return dateTime.ToString("yyyyMMddHH") + machineCode;
         }
 
+
+        #endregion
         public static int GeneratePassword(string key)
         {
             int password = 0;
@@ -85,6 +103,8 @@ namespace 申请
             }
             return Math.Abs(password % 100000000); // 将计算后的数字取模，以保证是8位数字的正数
         }
+        
+        #region   Log日志储存
         /// <summary>
         /// 用来储存访问记录LOG
         /// </summary>
@@ -105,6 +125,8 @@ namespace 申请
 
             File.AppendAllText(LogFilePath, logEntry + Environment.NewLine);
         }
+
+        #endregion
         public Form1()
         {
             InitializeComponent();
@@ -118,7 +140,11 @@ namespace 申请
             //按钮间隔时间30s
             buttonTimer.Interval = 30000; // 设置定时器的时间间隔为30秒
             buttonTimer.Tick += ButtonTimer_Tick; // 添加Tick事件处理器
+            #region  打开4G模块的串口
 
+            fSmsBaseClass.OpenPort("COM1");
+
+            #endregion
         }
         /// <summary>
         /// 生成验证码的函数
@@ -169,11 +195,9 @@ namespace 申请
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
+       
 
-        }
-
+        #region   申请密码的按钮部分
         private void button1_Click(object sender, EventArgs e)
         {
             bool accessGranted = false; // 默认为不允许访问
@@ -235,6 +259,8 @@ namespace 申请
             LogAccess(enteredEmployeeID, machineCode, accessGranted);
         }
 
+        #endregion
+
         /// <summary>
         /// 验证法生成算法
         /// </summary>
@@ -250,11 +276,10 @@ namespace 申请
 
         }
 
-        private void label6_Click(object sender, EventArgs e)
-        {
+        
 
-        }
 
+        #region   申请验证码的按钮部分
         private void button2_Click(object sender, EventArgs e)
         {
             if (EmployeeID.Contains(enteredEmployeeID))
@@ -268,6 +293,8 @@ namespace 申请
                         MessageBox.Show("点击太快，请等待30秒再点击。");
                         return;
                     }
+                    //发送验证码的函数
+                   // fSmsBaseClass.SendDTU(PhoneNumber, 0, Convert.ToString(YanZhengMa));
 
                     textBox6.Text = Convert.ToString(YanZhengMa);
                     MessageBox.Show("已向课长发送验证码，请等待其微信回应");
@@ -299,9 +326,20 @@ namespace 申请
             }
         }
 
-        private void label4_Click(object sender, EventArgs e)
-        {
+        #endregion
 
+       
+        #region 定义关闭软件时候触发事件
+        /// <summary>
+        /// 软件关闭的时候顺便把4G模块的串口给关了
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            fSmsBaseClass.ClosePort();
         }
+
+        #endregion
     }
 }
